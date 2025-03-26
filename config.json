@@ -1,0 +1,15 @@
+{
+    "discord_bot_command_prefix": "-",
+    "allowed_guild_ids": [0],
+    "allowed_channel_ids": [0], 
+    
+    "successful_color": [0, 255, 0],
+    "pending_color": [242, 147, 57],
+    "failed_color": [255, 0, 0],
+    "incomplete_color": [0, 0, 255],
+
+    "user_request_cooldown": 10.0,
+    "field_character_limit": 50,
+
+    "send_large_texts_as_files": true
+}

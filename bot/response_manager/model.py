@@ -1,0 +1,79 @@
+from openai import OpenAI
+
+
+from .content import Content
+from.conversation import get_conversation, save_conversation
+
+
+class Model:
+    """
+    Wrapper class for interacting with an OpenAI-compatible LLM model.
+    """
+    
+    def __init__(self, model_base_url: str, model: str, api_key: str, is_vision: bool = False):
+        """
+        Initializes the model configuration.
+
+        Args:
+            model_base_url (str): The base URL for the OpenAI or compatible API.
+            model (str): The model ID or name (e.g. 'gpt-4', 'gpt-3.5-turbo').
+            api_key (str): The API key used for authentication.
+            is_vision (bool, optional): Indicates if the model supports image input. Defaults to False.
+        """
+        self.model_base_url: str = model_base_url
+        self.model: str = model
+        self.api_key: str = api_key
+        self.is_vision: bool = is_vision 
+        
+    def get_client(self) -> OpenAI:
+        """
+        Creates and returns an OpenAI client instance.
+
+        Returns:
+            OpenAI: An instance of the OpenAI client configured with base URL and API key.
+        """
+        return OpenAI(base_url=self.model_base_url, api_key=self.api_key)
+    
+    def fetch_response(self, user_id: str, content: Content) -> str:
+        """
+        Sends a request to the language model using the provided conversation content,
+        and returns the assistant's response. The interaction is also appended to the user's
+        saved conversation history.
+
+        Args:
+            user_id (str): The unique identifier of the user whose conversation is being processed.
+            content (Content): The new user message(s) to send to the model. Must be a `Content` instance.
+
+        Raises:
+            ValueError: If the provided content is not a valid `Content` object or fails to load.
+
+        Returns:
+            str: The generated response text from the model.
+    """
+        if not isinstance(content, Content):
+            try:
+                content = Content(init_list=content)
+            except ValueError:
+                raise ValueError("fetch_response() requires 'content' be a valid content structure for LLM responses")
+                return None
+    
+        conversation = get_conversation(user_id)
+        conversation.extendleft(reversed(content))
+
+        client = self.get_client()
+        response = client.chat.completions.create(
+            model=self.model,
+            messages=list(conversation),
+            n=1,
+            temperature=0.85,
+        )
+        
+        model_response = response.choices[0].message.content
+        
+        conversation = Content(init_list=content)
+        conversation.add_assistant([model_response])
+        
+        save_conversation(user_id, list(conversation))
+        
+        return model_response
+    
