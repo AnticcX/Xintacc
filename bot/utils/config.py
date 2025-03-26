@@ -2,7 +2,6 @@ import json
 
 from typing import Any
 
-CONFIG = json.load(open("./config.json", "r"))
 
 def get_config(config_key: str) -> Any:
     """
@@ -17,7 +16,8 @@ def get_config(config_key: str) -> Any:
     Raises:
         KeyError: If the provided key does not exist in the configuration.
     """
-    if config_key in CONFIG:
-        return CONFIG[config_key]
+    config = json.load(open("./config.json", "r"))
+    if config_key in config:
+        return config[config_key]
     
     raise KeyError(f"{config_key} does not exist in configs")
