@@ -108,17 +108,6 @@ class DiscordBot(commands.Bot):
                     user.response_message = Response(await user.response_channel.send(embed=emb), emb)
                 else:
                     await user.response_message.edit_embed(embed=emb)
-                    
-import requests
-import json
-response = requests.get(
-  url=f"{os.getenv("MODEL_BASE_URL")}/auth/key",
-  headers={
-    "Authorization": f"Bearer {os.getenv("MODEL_API")}"
-  }
-)
-print(json.dumps(response.json(), indent=2))
-
 
 intents = Intents.all()
 intents.message_content = True

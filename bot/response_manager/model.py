@@ -77,7 +77,6 @@ class Model:
         })
 
         model_response = self.call_chat_completion(content)
-        print(model_response)
         
         conversation = Content(init_list=content)
         conversation.add_assistant([model_response])
