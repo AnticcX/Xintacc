@@ -2,6 +2,7 @@ import time
 
 from discord import Embed, Color
 from datetime import datetime
+from typing import Iterable
 
 from .user import User
 from ..utils import get_config
@@ -56,8 +57,6 @@ class Embed(Embed):
             self.title = "Xintacc responded with **(incomplete response)**:"
             footer_text += " | View attached file for complete response"
             
-            
-            
         self.set_footer(text=footer_text)
         
         if len(self.fields) > 1:
@@ -73,7 +72,7 @@ class Embed(Embed):
         self.insert_field_at(index=0, name="Responding to:", value=self.formatted_queue(user.responding_to), inline=True)
             
     def pending_response(self, user: User, on_cooldown: bool = False) -> None:
-        queued_messages = self.formatted_queue(user.queued_messages)
+        queued_messages = "\n".join(user.queued_messages())
         request_cooldown = get_config("user_request_cooldown")
         cooldown_elapsed_time = int(time.time() - user.last_requested)
         can_edit_footer = (not bool(self.footer) or self.footer.text != f"You are in cooldown for {request_cooldown - cooldown_elapsed_time} seconds..")

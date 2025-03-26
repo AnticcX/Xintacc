@@ -1,7 +1,8 @@
 {
     "discord_bot_command_prefix": "-",
-    "allowed_guild_ids": [0],
-    "allowed_channel_ids": [0], 
+    "allowed_guild_ids": [],
+    "allowed_channel_ids": [],
+    "image_thread_id": 0,
     
     "successful_color": [0, 255, 0],
     "pending_color": [242, 147, 57],
@@ -11,5 +12,11 @@
     "user_request_cooldown": 10.0,
     "field_character_limit": 50,
 
-    "send_large_texts_as_files": true
+    "send_large_texts_as_files": true,
+
+    "model_base_url": "",
+    "model": "",
+    "has_image_to_text": true,
+    "model_system_prompt": ""
+
 }

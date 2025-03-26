@@ -17,9 +17,9 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 class DiscordBot(commands.Bot):
-    MODEL_BASE_URL = os.getenv("MODEL_BASE_URL")
-    MODEL = os.getenv("MODEL")
-    MODEL_API_KEY = os.getenv("MODEL_API")
+    MODEL_BASE_URL = get_config("model_base_url")
+    MODEL = get_config("model")
+    MODEL_API_KEY = os.getenv("MODEL_API_KEY")
     RESPONSE_CLIENT = Model(MODEL_BASE_URL, MODEL, MODEL_API_KEY)
     
     def __init__(self, intents) -> None:
@@ -50,16 +50,19 @@ class DiscordBot(commands.Bot):
             reset_conversation(str(message.author.id))
             await message.reply(f"{message.author.mention} was resetted!")
         else:
-            if message.author.id not in self.queued_users: 
-                self.queued_users[message.author.id] = User(message.author)
-            self.queued_users[message.author.id].add_message(message)
+            try: 
+                user = self.queued_users[message.author.id]
+            except KeyError:
+                user = self.queued_users[message.author.id] = User(message.author)
+                
+            await user.add_message(message)
             await message.delete()
             
     def get_response(self, user: User) -> None:
         user.is_requesting = True
         try:
-            user.responding_to = user.queued_messages.copy()
-            user.clear_queued_messages()
+            user.generate_response_queue()
+            user.queued_messages.clear()
             user.last_requested = time.time()
             res = self.RESPONSE_CLIENT.fetch_response(str(user.author.id), user.responding_to)
             user.queued_response = res if res else "Failed to get a response.."
@@ -106,7 +109,17 @@ class DiscordBot(commands.Bot):
                 else:
                     await user.response_message.edit_embed(embed=emb)
                     
-                    
+import requests
+import json
+response = requests.get(
+  url=f"{os.getenv("MODEL_BASE_URL")}/auth/key",
+  headers={
+    "Authorization": f"Bearer {os.getenv("MODEL_API")}"
+  }
+)
+print(json.dumps(response.json(), indent=2))
+
+
 intents = Intents.all()
 intents.message_content = True
 client = DiscordBot(intents=intents)

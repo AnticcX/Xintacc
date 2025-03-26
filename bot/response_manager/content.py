@@ -15,7 +15,7 @@ class Content(list):
             
         if init_list: self.load_from_existing(init_list)
 
-    def _build_content_blocks(self, text: list[str] = None, image_url: list[str] = None) -> list:
+    def _build_content_blocks(self, texts: list[str] = None, image_urls: list[str] = None) -> list:
         """
         Builds a list of content blocks from text and/or image URLs.
 
@@ -27,13 +27,13 @@ class Content(list):
             list: A list of content blocks suitable for use in a message payload.
         """
         content = []
-        if text:
-            content.extend({"type": "text", "text": msg} for msg in text)
-        if image_url:
-            content.extend({"type": "image_url", "image_url": {"url": url}} for url in image_url)
+        if texts:
+            content.extend({"type": "text", "text": msg} for msg in texts)
+        if image_urls:
+            content.extend({"type": "image_url", "image_url": {"url": url}} for url in image_urls)
         return content
 
-    def add_user(self, text: list[str] = None, image_url: list[str] = None) -> None:
+    def add_user(self, texts: list[str] = None, image_urls: list[str] = None) -> None:
         """
         Adds a 'user' role message to the content list with text and/or image URLs.
 
@@ -44,7 +44,7 @@ class Content(list):
         Raises:
             ValueError: If neither text nor image_url is provided or both are empty.
         """
-        content = self._build_content_blocks(text, image_url)
+        content = self._build_content_blocks(texts, image_urls)
         if not content:
             raise ValueError("add_user() requires at least one of 'text' or 'image_url'.")
         self.append({"role": "user", "content": content})
