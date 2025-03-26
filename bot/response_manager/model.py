@@ -1,8 +1,10 @@
 from openai import OpenAI
-
+from openai.types.chat.chat_completion import ChatCompletion
+from tenacity import retry, stop_after_attempt
 
 from .content import Content
-from.conversation import get_conversation, save_conversation
+from .conversation import get_conversation, save_conversation
+from ..utils import get_config
 
 
 class Model:
@@ -34,6 +36,16 @@ class Model:
         """
         return OpenAI(base_url=self.model_base_url, api_key=self.api_key)
     
+    @retry(stop=stop_after_attempt(4))
+    def call_chat_completion(self, content: Content) -> str:
+        client = self.get_client()
+        response = client.chat.completions.create(model=self.model, messages=content, temperature=0.85)
+        content = response.choices[0].message.content
+        
+        if len(content) <= 0:
+            raise RuntimeError("Empty response")
+        return content
+
     def fetch_response(self, user_id: str, content: Content) -> str:
         """
         Sends a request to the language model using the provided conversation content,
@@ -59,16 +71,13 @@ class Model:
     
         conversation = get_conversation(user_id)
         conversation.extendleft(reversed(content))
+        conversation.extendleft({
+            "role": "system",
+            "content": get_config("model_system_prompt")
+        })
 
-        client = self.get_client()
-        response = client.chat.completions.create(
-            model=self.model,
-            messages=list(conversation),
-            n=1,
-            temperature=0.85,
-        )
-        
-        model_response = response.choices[0].message.content
+        model_response = self.call_chat_completion(content)
+        print(model_response)
         
         conversation = Content(init_list=content)
         conversation.add_assistant([model_response])
