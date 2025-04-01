@@ -1,14 +1,16 @@
 import os, time, io
 
 from discord.ext import commands, tasks
-from discord import Message, Intents, File, Object
+from discord import Message, File, Object
 from threading import Thread
 
 from bot import get_config
 from bot import User, Model, Embed, Response
 
 class discordClient(commands.Bot):
-    MY_GUILD_ID = Object(id=764920345282084865)
+    MY_GUILD_ID = get_config("allowed_guild_ids")[0]
+    MY_GUILD_OBJ = Object(id=MY_GUILD_ID)
+    
     MODEL_BASE_URL = get_config("model_base_url")
     MODEL = get_config("model")
     MODEL_API_KEY = os.getenv("MODEL_API_KEY")
@@ -27,10 +29,10 @@ class discordClient(commands.Bot):
         await self.load_extensions()
         
         print("🔎 Commands before sync:")
-        for cmd in self.tree.get_commands(guild=self.MY_GUILD_ID):
+        for cmd in self.tree.get_commands(guild=self.MY_GUILD_OBJ):
             print(f" - {cmd.name}")
             
-        await self.tree.sync(guild=self.MY_GUILD_ID)
+        await self.tree.sync(guild=self.MY_GUILD_OBJ)
         
     async def load_extensions(self):
         for filename in os.listdir("./bot/features"):
