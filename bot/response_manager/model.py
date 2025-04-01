@@ -46,7 +46,7 @@ class Model:
             raise RuntimeError("Empty response")
         return content
 
-    def fetch_response(self, user_id: str, content: Content) -> str:
+    def fetch_response(self, user_id: int, content: Content) -> str:
         """
         Sends a request to the language model using the provided conversation content,
         and returns the assistant's response. The interaction is also appended to the user's

@@ -1,8 +1,6 @@
 import time
 
 from discord import Embed, Color
-from datetime import datetime
-from typing import Iterable
 
 from .user import User
 from ..utils import get_config
@@ -66,7 +64,8 @@ class Embed(Embed):
         
     def start_response(self, user: User) -> None:
         self.set_color(get_config("pending_color"))
-        self.set_author(name=f"{user.author.display_name}", icon_url=user.author.avatar.url)
+        icon_url = "" if not user.author.avatar else user.author.avatar.url
+        self.set_author(name=f"{user.author.display_name}", icon_url=icon_url)
         if len(self.fields) <= 2:
             self.remove_field(1)
         self.insert_field_at(index=0, name="Responding to:", value=self.formatted_queue(user.responding_to), inline=True)

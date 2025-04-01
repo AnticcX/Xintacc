@@ -4,7 +4,7 @@ import json
 from collections import deque
 from .content import Content
 
-def confirm_user_exists(user_id: str) -> bool:
+def confirm_user_exists(user_id: int) -> bool:
     """
     Checks if user chat data exists, and initializes it if missing.
 
@@ -30,7 +30,7 @@ def confirm_user_exists(user_id: str) -> bool:
 
     return True
 
-def reset_conversation(user_id: str) -> bool:
+def reset_conversation(user_id: int) -> bool:
     """
     Resets the conversation history for a given user by clearing their conversation file.
 
@@ -55,7 +55,7 @@ def reset_conversation(user_id: str) -> bool:
         return False
     return True
 
-def get_conversation(user_id: str, limit: int = 10) -> deque:
+def get_conversation(user_id: int, limit: int = 10) -> deque:
     """
     Loads the user's conversation history into a deque, optionally limiting the number of messages.
 
@@ -74,7 +74,7 @@ def get_conversation(user_id: str, limit: int = 10) -> deque:
 
     return deque(messages[-limit:])
 
-def save_conversation(user_id: str, content: Content) -> None:
+def save_conversation(user_id: int, content: Content) -> None:
     """
     Appends new conversation content to a user's existing conversation history and saves it.
 
