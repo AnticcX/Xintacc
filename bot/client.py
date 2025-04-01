@@ -3,11 +3,13 @@ import os, time, io
 from discord.ext import commands, tasks
 from discord import Message, File, Object
 from threading import Thread
+from typing import Union
 
 from bot import get_config
-from bot import User, Model, Embed, Response
+from bot import User, Model, Embed, Response, DiscordMessage
 
-class discordClient(commands.Bot):
+# Requires cleaning up
+class DiscordClient(commands.Bot):
     MY_GUILD_ID = get_config("allowed_guild_ids")[0]
     MY_GUILD_OBJ = Object(id=MY_GUILD_ID)
     
@@ -47,7 +49,7 @@ class discordClient(commands.Bot):
     async def on_message(self, message: Message):
         if message.author.id == self.user.id or message.author.bot:
             return
-        
+
         if message.content.startswith(get_config("discord_bot_command_prefix")):
             return await self.process_commands(message)
         
@@ -56,13 +58,13 @@ class discordClient(commands.Bot):
         
         if guild_id not in get_config("allowed_guild_ids") or channel_id not in get_config("allowed_channel_ids"):
             return
-        try: 
-            user = self.queued_users[message.author.id]
-        except KeyError:
-            user = self.queued_users[message.author.id] = User(message.author)
-                    
-        await user.add_message(message)
+        
+        await self.queue_message(message)
         await message.delete()
+        
+    async def queue_message(self, message: Union[Message, DiscordMessage]) -> None:
+        user = self.queued_users.setdefault(message.author.id, User(message.author))
+        await user.add_message(message)
         
     def get_response(self, user: User) -> None:
         user.is_requesting = True

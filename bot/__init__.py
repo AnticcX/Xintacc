@@ -1,7 +1,7 @@
-from .utils import get_config
+from .utils import get_config, DiscordMessage
 from .response_manager import reset_conversation
-from .response_manager import User, Model, Embed, Response
-from .client import discordClient
+from .response_manager import User, Model, Embed, Response, Content
+from .client import DiscordClient
 
 __all__ = [
     "get_config",
@@ -10,5 +10,7 @@ __all__ = [
     "Model",
     "Embed",
     "Response",
-    "discordClient"
+    "DiscordClient",
+    "DiscordMessage",
+    "Content"
 ]

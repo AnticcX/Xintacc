@@ -1,8 +1,11 @@
 import time, discord
+
 from discord import User as DiscordUser
+
 from .content import Content
 from .response import Response
-from ..utils import get_config
+from bot import get_config
+from bot import DiscordMessage
 
 # TODO REWRITE THIS SHIT
 class User:
@@ -18,16 +21,19 @@ class User:
         # temp solution
         self.response_channel: discord.TextChannel = None
         
-    async def add_message(self, message: discord.Message) -> None:
+    async def add_message(self, message: DiscordMessage) -> None:
         if not self.queued_messages.image_thread:
             self.queued_messages.image_thread = message.channel.get_thread(get_config("image_thread_id"))
         
-        if not self.response_channel:
-            self.response_channel = message.channel
+        self.response_channel = message.channel
             
         text = message.content
         await self.queued_messages.add(text=text)
-        for attachment in message.attachments:
+        
+        if not message.original_message:
+            return
+        
+        for attachment in message.original_message.attachments:
             if attachment.content_type and attachment.content_type.startswith('image/'):
                 await self.queued_messages.add(image=attachment)
         

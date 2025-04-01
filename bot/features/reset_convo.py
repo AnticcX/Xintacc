@@ -3,12 +3,12 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from ..response_manager import reset_conversation
-from bot import discordClient
+from bot import DiscordClient
+from bot import reset_conversation
 
 
 class resetConvo(commands.Cog):
-    def __init__(self, client: discordClient):
+    def __init__(self, client: DiscordClient):
         self.client = client
     
     @app_commands.command(
@@ -20,10 +20,8 @@ class resetConvo(commands.Cog):
         await interaction.response.send_message(f"{interaction.user.mention} was resetted!")
         
     async def cog_load(self):
-        # Attach command directly to the tree
         self.client.tree.add_command(self.reset, guild=self.client.MY_GUILD_OBJ)
-        print("✅ Slash command added to tree")
         
-async def setup(client: discordClient):
+async def setup(client: DiscordClient):
     await client.add_cog(resetConvo(client))
     print(f'Cog {__name__} loaded!')

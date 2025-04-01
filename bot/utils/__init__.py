@@ -1,6 +1,8 @@
 from .config import get_config
+from .message import DiscordMessage
 
 
 __all__ = [
-    "get_config"
+    "get_config",
+    "DiscordMessage"
 ]
