@@ -1,10 +1,12 @@
 from openai import OpenAI
 from openai.types.chat.chat_completion import ChatCompletion
-from tenacity import retry, stop_after_attempt
+from tenacity import retry, stop_after_attempt, RetryError
 
 from .content import Content
 from .conversation import get_conversation, save_conversation
 from ..utils import get_config
+
+import pprint
 
 
 class Model:
@@ -36,8 +38,9 @@ class Model:
         """
         return OpenAI(base_url=self.model_base_url, api_key=self.api_key)
     
-    @retry(stop=stop_after_attempt(4))
-    def call_chat_completion(self, content: Content) -> str:
+    @retry(stop=stop_after_attempt(get_config("model_retry_attempts")))
+    def call_chat_completion(self, content: list) -> str:
+        print("Attempting to get response..")
         client = self.get_client()
         response = client.chat.completions.create(model=self.model, messages=content, temperature=0.85)
         content = response.choices[0].message.content
@@ -46,7 +49,7 @@ class Model:
             raise RuntimeError("Empty response")
         return content
 
-    def fetch_response(self, user_id: int, content: Content) -> str:
+    def fetch_response(self, guild_id: int, user_id: int, content: Content) -> str:
         """
         Sends a request to the language model using the provided conversation content,
         and returns the assistant's response. The interaction is also appended to the user's
@@ -69,19 +72,18 @@ class Model:
                 raise ValueError("fetch_response() requires 'content' be a valid content structure for LLM responses")
                 return None
     
-        conversation = get_conversation(user_id)
-        conversation.extendleft(reversed(content))
-        conversation.extendleft({
-            "role": "system",
-            "content": get_config("model_system_prompt")
-        })
+        conversation = get_conversation(guild_id, user_id)
+        conversation.extend(reversed(content))
 
-        model_response = self.call_chat_completion(content)
+        try:
+            model_response = self.call_chat_completion(list(conversation))
+        except RetryError:
+            model_response = "Could not get response.. Try again later."
         
         conversation = Content(init_list=content)
         conversation.add_assistant([model_response])
         
-        save_conversation(user_id, list(conversation))
+        save_conversation(guild_id, user_id, list(conversation))
         
         return model_response
     

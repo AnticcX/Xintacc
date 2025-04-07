@@ -14,8 +14,9 @@
 
     "send_large_texts_as_files": true,
 
-    "model_base_url": "",
-    "model": "",
+    "model_base_url": "https://openrouter.ai/api/v1",
+    "model": "google/gemini-2.0-flash-001",
+    "model_retry_attempts": 2,
     "has_image_to_text": true,
     "model_system_prompt": ""
 

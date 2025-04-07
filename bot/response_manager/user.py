@@ -9,7 +9,7 @@ from bot import DiscordMessage
 
 # TODO REWRITE THIS SHIT
 class User:
-    def __init__(self, author: DiscordUser):
+    def __init__(self, guild_id: int, author: DiscordUser):
         self.author: discord.User = author
         self.queued_messages: MessageQueue = MessageQueue()
         self.responding_to: Content = Content()
@@ -17,6 +17,7 @@ class User:
         self.last_requested: float = -1
         self.is_requesting: bool = False
         self.response_message: Response = None
+        self.guild_id: int = guild_id
         
         # temp solution
         self.response_channel: discord.TextChannel = None

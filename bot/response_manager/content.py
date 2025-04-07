@@ -1,8 +1,10 @@
 from collections import deque
 
+from bot import get_config
+
 
 class Content(list):
-    def __init__(self, system_prompt: str = None, init_list: list = None):
+    def __init__(self, system_prompt: bool = True, init_list: list = None):
         """
         Initializes the Content list with an optional system prompt message.
 
@@ -11,7 +13,7 @@ class Content(list):
         """
         super().__init__()
         if system_prompt:
-            self.append({"role": "system", "content": system_prompt})
+            self.append({"role": "system", "content": get_config("model_system_prompt")})
             
         if init_list: self.load_from_existing(init_list)
 
@@ -90,3 +92,18 @@ class Content(list):
 
         self.clear()
         self.extend(content)
+
+    def append(self, item):
+            if self and self[0]["role"] == "system":
+                super().insert(len(self), item)
+            else:
+                super().append(item)
+    
+    def insert(self, index, item):
+        if self and self[0]["role"] == "system":
+            index = max(1, index)
+        super().insert(index, item)
+                
+    def extend(self, iterable):
+        for item in iterable:
+            self.append(item)

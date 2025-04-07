@@ -16,7 +16,7 @@ class resetConvo(commands.Cog):
         description="Resets the user's current conversation"
         )
     async def reset(self, interaction: discord.Interaction):
-        reset_conversation(str(interaction.user.id))
+        reset_conversation(interaction.guild.id, interaction.user.id)
         await interaction.response.send_message(f"{interaction.user.mention} was resetted!")
         
     async def cog_load(self):

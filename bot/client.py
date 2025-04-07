@@ -37,9 +37,9 @@ class DiscordClient(commands.Bot):
         await self.tree.sync(guild=self.MY_GUILD_OBJ)
         
     async def load_extensions(self):
-        for filename in os.listdir("./bot/features"):
+        for filename in os.listdir("./bot/commands"):
             if filename.endswith(".py"):
-                await self.load_extension(f"bot.features.{filename[:-3]}")
+                await self.load_extension(f"bot.commands.{filename[:-3]}")
         
     async def on_ready(self):
         self.process_queued_users.start()
@@ -63,8 +63,8 @@ class DiscordClient(commands.Bot):
         await message.delete()
         
     async def queue_message(self, message: Union[Message, DiscordMessage]) -> None:
-        user = self.queued_users.setdefault(message.author.id, User(message.author))
-        await user.add_message(message)
+        user = self.queued_users.setdefault(message.author.id, User(message.guild.id, message.author))
+        await user.add_message(DiscordMessage(message=message))
         
     def get_response(self, user: User) -> None:
         user.is_requesting = True
@@ -72,7 +72,7 @@ class DiscordClient(commands.Bot):
             user.generate_response_queue()
             user.queued_messages.clear()
             user.last_requested = time.time()
-            res = self.RESPONSE_CLIENT.fetch_response(str(user.author.id), user.responding_to)
+            res = self.RESPONSE_CLIENT.fetch_response(user.guild_id, user.author.id, user.responding_to)
             user.queued_response = res if res else "Failed to get a response.."
         finally:
             user.is_requesting = False
