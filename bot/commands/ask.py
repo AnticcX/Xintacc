@@ -3,7 +3,6 @@ from discord import app_commands, Interaction, Object
 
 from bot import DiscordClient, DiscordMessage
 
-MY_GUILD = Object(id=764920345282084865)
 
 class askBot(commands.Cog):
     def __init__(self, client: DiscordClient):
@@ -26,7 +25,7 @@ class askBot(commands.Cog):
             
     
     async def cog_load(self):
-        self.client.tree.add_command(self.ask, guild=MY_GUILD)
+        self.client.tree.add_command(self.ask, guild=self.client.MY_GUILD_OBJ)
     
 async def setup(client: DiscordClient):
     await client.add_cog(askBot(client))
