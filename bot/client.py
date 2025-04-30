@@ -4,11 +4,14 @@ from discord.ext import commands, tasks
 from discord import Message, File, Object
 from threading import Thread
 from typing import Union
+from dotenv import load_dotenv
 
 from bot import get_config
 from bot import User, Model, Embed, Response, DiscordMessage
 
 # Requires cleaning up
+load_dotenv()
+
 class DiscordClient(commands.Bot):
     MY_GUILD_ID = get_config("allowed_guild_ids")[0]
     MY_GUILD_OBJ = Object(id=MY_GUILD_ID)
@@ -39,6 +42,7 @@ class DiscordClient(commands.Bot):
     async def load_extensions(self):
         for filename in os.listdir("./bot/commands"):
             if filename.endswith(".py"):
+                print(f"Attempting to load {filename}")
                 await self.load_extension(f"bot.commands.{filename[:-3]}")
         
     async def on_ready(self):
