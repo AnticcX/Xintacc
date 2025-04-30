@@ -1,12 +1,9 @@
 from openai import OpenAI
-from openai.types.chat.chat_completion import ChatCompletion
 from tenacity import retry, stop_after_attempt, RetryError
 
 from .content import Content
 from .conversation import get_conversation, save_conversation
 from ..utils import get_config
-
-import pprint
 
 
 class Model:
@@ -40,13 +37,9 @@ class Model:
     
     @retry(stop=stop_after_attempt(get_config("model_retry_attempts")))
     def call_chat_completion(self, content: list) -> str:
-        print("Attempting to get response..")
         client = self.get_client()
         response = client.chat.completions.create(model=self.model, messages=content, temperature=0.85)
         content = response.choices[0].message.content
-        
-        if len(content) <= 0:
-            raise RuntimeError("Empty response")
         return content
 
     def fetch_response(self, guild_id: int, user_id: int, content: Content) -> str:
