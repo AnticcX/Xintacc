@@ -33,7 +33,7 @@ class DiscordMessage:
             self.author = author
             self.channel = channel
             self.guild = self.channel.guild
-            self.attachments = attachments
+            self.attachments = [] if attachments is None else attachments
 
     async def reply(
         self,
