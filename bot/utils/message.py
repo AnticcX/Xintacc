@@ -14,7 +14,8 @@ class DiscordMessage:
         message: Optional[Message] = None,
         channel: Optional[Messageable] = None,
         author: Optional[Union[User, Member]] = None,
-        content: Optional[str] = None
+        content: Optional[str] = None,
+        attachments: Optional[list[File]] = None
     ):
         
         self.original_message: Message = None
@@ -31,6 +32,8 @@ class DiscordMessage:
             self.content = content
             self.author = author
             self.channel = channel
+            self.guild = self.channel.guild
+            self.attachments = attachments
 
     async def reply(
         self,
